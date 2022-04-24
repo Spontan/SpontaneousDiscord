@@ -78,21 +78,25 @@ public class SpontaneousListener extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event){
-        if(true)
-            return;
+        logger.info(event.getAuthor().getName() + " sent a message to channel "
+                + event.getChannel().getName() + ": \"" + event.getMessage().getContentRaw() + "\"");
         if(!event.isFromGuild())
             return;
         if(event.getAuthor().isBot())
             return;
         if(event.getChannel().getId().equals(String.valueOf(controller.getSettings().getPrimaryChannelId()))){
-            controller.sendMessage("Hallo " + event.getMember().getEffectiveName(), true);
+            //controller.sendMessage("Hallo " + event.getMember().getEffectiveName(), true);
         }
     }
 
     @Override
     public void onGuildVoiceStream(GuildVoiceStreamEvent event){
         if(event.isStream()){
+            logger.info(event.getMember().getEffectiveName() + " has started a stream");
             controller.sendMessage(event.getMember().getEffectiveName() + " hat einen Stream gestartet <3", true);
+        }
+        else{
+            logger.info(event.getMember().getEffectiveName() + " has ended a stream");
         }
     }
 

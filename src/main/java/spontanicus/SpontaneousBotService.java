@@ -138,8 +138,8 @@ public class SpontaneousBotService{
 
         jda = JDABuilder.createDefault(settings.getBotToken())
                 .addEventListeners(new SpontaneousListener(this))
-                .enableCache(CacheFlag.EMOTE)
-                .disableCache(CacheFlag.MEMBER_OVERRIDES, CacheFlag.VOICE_STATE)
+                .enableCache(CacheFlag.EMOTE, CacheFlag.VOICE_STATE)
+                .disableCache(CacheFlag.MEMBER_OVERRIDES)
                 .setContextEnabled(false)
                 .build()
                 .awaitReady();
@@ -169,8 +169,8 @@ public class SpontaneousBotService{
         // DiscordUtil.cleanWebhooks(guild, DiscordUtil.CONSOLE_RELAY_NAME);
         // DiscordUtil.cleanWebhooks(guild, DiscordUtil.ADVANCED_RELAY_NAME);
 
-
-        sendMessage("Bot started!", false);
+        if(!invalidStartup)
+            logger.info("Bot started!");
     }
 
     public void updatePrimaryChannel() {
