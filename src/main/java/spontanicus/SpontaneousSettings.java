@@ -2,7 +2,13 @@ package spontanicus;
 
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Activity.ActivityType;
+import org.json.JSONObject;
+import util.ConfigParser;
+import util.ParameterMap;
 
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,28 +19,30 @@ import java.util.regex.Pattern;
 public class SpontaneousSettings { //TODO: Make config file
     private final static Logger logger = Logger.getLogger("SpontaneousDiscord");
 
-    private final Map<String, Long> nameToChannelIdMap = new HashMap<>();
-    private final Map<Long, List<String>> channelIdToNamesMap = new HashMap<>();
     private final List<Pattern> discordFilters = new ArrayList<>();
+    private final File configFile;
 
-    public SpontaneousSettings() {
+    ParameterMap parameterValues;
+
+    public SpontaneousSettings(File configFile) throws IOException {
+        this.configFile = configFile;
         reloadConfig();
     }
 
     public String getOnlineStatus(){
-        return "ONLINE";
+        return parameterValues.get(ParameterMap.ONLINE_STATUS);
     }
 
     public ActivityType getActivityType(){
-        return activityTypeFromName("watching");
+        return activityTypeFromName(parameterValues.get(ParameterMap.ACTIVITY_TYPE));
     }
 
     public String getActivity(){
-        return "all of your streams!";
+        return parameterValues.get(ParameterMap.ACTIVITY);
     }
 
     public long getPrimaryChannelId(){
-        return 0L;
+        return Long.parseLong(parameterValues.get(ParameterMap.CHANNEL_ID));
     }
 
     public String getMessageChannel(String key){
@@ -46,11 +54,11 @@ public class SpontaneousSettings { //TODO: Make config file
     }
 
     public long getGuildId(){
-        return 0L;
+        return Long.parseLong(parameterValues.get(ParameterMap.GUILD_ID));
     }
 
     public String getBotToken(){
-        return "";
+        return parameterValues.get(ParameterMap.BOT_TOKEN);
     }
 
     public boolean isShowBotMessages(){
@@ -73,29 +81,25 @@ public class SpontaneousSettings { //TODO: Make config file
         return 1000;
     }
 
-    public void reloadConfig() {
-        nameToChannelIdMap.clear();
-        channelIdToNamesMap.clear();
-        Map<String, String> section = new HashMap<>();
-        section.put("ALL", String.valueOf(getPrimaryChannelId()));
-        for (Map.Entry<String, String> entry : section.entrySet()) {
-            try{
-                final long value = Long.parseLong(entry.getValue());
-                nameToChannelIdMap.put(entry.getKey(), value);
-                channelIdToNamesMap.computeIfAbsent(value, o -> new ArrayList<>()).add(entry.getKey());
-            }
-            catch(NumberFormatException e){
-                logger.warning("Channel ID: " + entry.getValue() + " for channel " + entry.getKey() + " is not a number");
+    public void reloadConfig() throws IOException {
+        if(configFile==null) {
+            throw new NullPointerException("Config file is not set before trying to load settings");
+        }
+        if(!configFile.isFile()){
+            try {
+                Files.copy(new FileInputStream(getConfigTemplate()), Path.of(configFile.toURI()));
+            } catch (Exception e) {
+                throw new IOException("Could not create default config file", e);
             }
         }
+
+        ConfigParser parser = new ConfigParser();
+
+        parameterValues = parser.parseConfigFile(configFile.getPath());
     }
 
     public List<Pattern> getDiscordFilters(){
         return discordFilters;
-    }
-
-    public List<String> getKeysFromChannelId(long channelId){
-        return channelIdToNamesMap.get(channelId);
     }
 
     public static ActivityType activityTypeFromName(String activityName) {
@@ -110,5 +114,9 @@ public class SpontaneousSettings { //TODO: Make config file
         }
 
         return ActivityType.PLAYING;
+    }
+
+    private File getConfigTemplate(){
+        return null;
     }
 }

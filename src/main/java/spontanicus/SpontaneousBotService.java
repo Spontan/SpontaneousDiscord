@@ -19,6 +19,7 @@ import okhttp3.OkHttpClient;
 import org.jetbrains.annotations.NotNull;
 
 import javax.security.auth.login.LoginException;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,8 +51,8 @@ public class SpontaneousBotService{
     public final static AllowedMentions NO_GROUP_MENTIONS_WEBHOOK = new AllowedMentions().withParseEveryone(false).withParseRoles(false).withParseUsers(true);
     private SpontaneousSettings settings;
 
-    public SpontaneousBotService(){
-        settings = new SpontaneousSettings();
+    public SpontaneousBotService() throws IOException {
+        settings = new SpontaneousSettings(null);
         final ImmutableList.Builder<Message.MentionType> types = new ImmutableList.Builder<>();
         types.add(Message.MentionType.USER);
         types.add(Message.MentionType.CHANNEL);

@@ -1,5 +1,6 @@
 import spontanicus.SpontaneousBotService;
 
+import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -8,10 +9,15 @@ public class Starter {
     private static SpontaneousBotService discordBot;
 
     public static void main(String[] args){
-        startDiscordBot();
+        try {
+            startDiscordBot();
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
     }
 
-    public static void startDiscordBot(){
+    public static void startDiscordBot() throws IOException {
         if (discordBot == null) {
             discordBot = new SpontaneousBotService();
 
