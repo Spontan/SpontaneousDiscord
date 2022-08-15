@@ -19,19 +19,21 @@ public class ConfigParser {
 
     public ParameterMap parseConfigFile(String path){
         Path pathToConfig = Paths.get(path);
-        Stream<String> configLines = new ArrayList<String>().stream();
 
         try{
-            if(!Files.exists(pathToConfig))
-                logger.log(Level.WARNING, "Config file could not be found for path \"" + pathToConfig + "\" could not be found. Returning empty configuration");
-            else
+            if(!Files.exists(pathToConfig)) {
+                logger.log(Level.WARNING, "Config file could not be found for path \"" + pathToConfig.toAbsolutePath() + "\" could not be found. Returning empty configuration");
+                return new ParameterMap();
+            }
+            else{
                 return parseLines(Files.lines(pathToConfig));
+            }
 
         } catch (IOException e) {
             logger.log(Level.WARNING, "Exception while reading config file");
             e.printStackTrace();
         }
-        return parseLines((configLines));
+        return new ParameterMap();
     }
 
     protected ParameterMap parseLines(Stream<String> lines){
@@ -66,7 +68,7 @@ public class ConfigParser {
      * The comment starts with the first occurrence of a '#' character which is not between quotes (denoting a string value).
      * To remove the comment section from the provided string, you can use "line.substring(0, findCommentStart(line))".
      * This works even if no comment exists (in this case the string will remain unchanged).
-     * @param line
+     * @param line The line for which to find the start of the comment
      * @return The index of the '#' character denoting the start of the comment section, or the length of the line,
      * if no comment section can be found.
      */
