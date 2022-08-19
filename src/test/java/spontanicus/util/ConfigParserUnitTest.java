@@ -1,7 +1,9 @@
-package util;
+package spontanicus.util;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import spontanicus.util.ConfigParser;
+import spontanicus.util.ParameterMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

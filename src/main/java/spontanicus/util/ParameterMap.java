@@ -1,4 +1,4 @@
-package util;
+package spontanicus.util;
 
 import java.util.HashMap;
 import java.util.Map;

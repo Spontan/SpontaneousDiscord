@@ -1,18 +1,15 @@
-package spontanicus;
+package spontanicus.discord;
 
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Activity.ActivityType;
-import org.json.JSONObject;
-import util.ConfigParser;
-import util.ParameterMap;
+import spontanicus.util.ConfigParser;
+import spontanicus.util.ParameterMap;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
@@ -87,7 +84,7 @@ public class SpontaneousSettings { //TODO: Make config file
         }
         if(!configFile.isFile()){
             try {
-                Files.copy(new FileInputStream(getConfigTemplate()), Path.of(configFile.toURI()));
+                Files.copy(new FileInputStream(getConfigTemplate()), Path.of(configFile.toURI())); //TODO: add template config functionality
             } catch (Exception e) {
                 throw new IOException("Could not create default config file", e);
             }
@@ -103,11 +100,9 @@ public class SpontaneousSettings { //TODO: Make config file
     }
 
     public static ActivityType activityTypeFromName(String activityName) {
-        ActivityType[] var1 = Activity.ActivityType.values();
-        int var2 = var1.length;
+        ActivityType[] activityTypes = Activity.ActivityType.values();
 
-        for(int var3 = 0; var3 < var2; ++var3) {
-            ActivityType activityType = var1[var3];
+        for (ActivityType activityType : activityTypes) {
             if (activityType.name().equalsIgnoreCase(activityName)) {
                 return activityType;
             }

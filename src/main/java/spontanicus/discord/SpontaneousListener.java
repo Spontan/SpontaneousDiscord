@@ -1,4 +1,4 @@
-package spontanicus;
+package spontanicus.discord;
 
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceStreamEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;

@@ -1,4 +1,4 @@
-package spontanicus;
+package spontanicus.discord;
 
 /**
  * Indicates the type of message being sent and its literal channel name used in the config.
