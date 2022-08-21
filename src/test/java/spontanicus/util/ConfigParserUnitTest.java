@@ -33,7 +33,7 @@ public class ConfigParserUnitTest {
 
     @Test
     public void loadParametersFromFile(){
-        ParameterMap parameters = parser.parseConfigFile("src/test/config.ini");
+        ParameterMap parameters = parser.parseConfigFile("src/test/config.yml");
         assertThat(parameters.get("guildId")).isEqualTo("1234567890");
         assertThat(parameters.get("activity")).isEqualTo("all your streams!");
     }

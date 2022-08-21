@@ -41,6 +41,7 @@ public class SpontaneousBotService{
     private String lastConsoleId;
     private final Map<String, WebhookClient> channelIdToWebhook = new HashMap<>();
     private boolean invalidStartup = false;
+    private boolean running = false;
 
     private final Map<String, SpontaneousEventType> registeredTypes = new HashMap<>();
     private final Map<SpontaneousEventType, String> typeToChannelId = new HashMap<>();
@@ -171,8 +172,14 @@ public class SpontaneousBotService{
         // DiscordUtil.cleanWebhooks(guild, DiscordUtil.CONSOLE_RELAY_NAME);
         // DiscordUtil.cleanWebhooks(guild, DiscordUtil.ADVANCED_RELAY_NAME);
 
-        if(!invalidStartup)
+        if(!invalidStartup) {
             logger.info("Bot started!");
+            running = true;
+        }
+    }
+
+    public boolean isRunning(){
+        return running;
     }
 
     public void updatePrimaryChannel() {
@@ -286,38 +293,43 @@ public class SpontaneousBotService{
     }
 
     public void shutdown() {
+        if (jda == null)
+            return;
 
-        if (jda != null) {
+        shutdownConsoleRelay(true);
 
-            shutdownConsoleRelay(true);
-
-            // Unregister leftover jda listeners
-            for (Object obj : jda.getRegisteredListeners()) {
-                if (!(obj instanceof EventListener)) { // Yeah bro I wish I knew too :/
-                    jda.removeEventListener(obj);
-                }
-            }
-
-            // Creates a future which will be completed when JDA fully shutdowns
-            final CompletableFuture<Void> future = new CompletableFuture<>();
-            jda.addEventListener(new ListenerAdapter() {
-                @Override
-                public void onShutdown(@NotNull ShutdownEvent event) {
-                    future.complete(null);
-                }
-            });
-
-            // Tell JDA to wrap it up
-            jda.shutdown();
-            try {
-                // Wait for JDA to wrap it up
-                future.get(5, TimeUnit.SECONDS);
-            } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                logger.warning("JDA took longer than expected to shutdown, this may have caused some problems.");
-            } finally {
-                jda = null;
+        // Unregister leftover jda listeners
+        for (Object obj : jda.getRegisteredListeners()) {
+            if (!(obj instanceof EventListener)) { // Yeah bro I wish I knew too :/
+                jda.removeEventListener(obj);
             }
         }
+
+        // Creates a future which will be completed when JDA fully shutdowns
+        final CompletableFuture<Void> future = new CompletableFuture<>();
+        jda.addEventListener(new ListenerAdapter() {
+            @Override
+            public void onShutdown(@NotNull ShutdownEvent event) {
+                future.complete(null);
+            }
+        });
+
+        // Tell JDA to wrap it up
+        jda.shutdown();
+        try {
+            // Wait for JDA to wrap it up
+            future.get(5, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            logger.warning("JDA took longer than expected to shutdown, this may have caused some problems.");
+        } finally {
+            jda = null;
+            running = false;
+        }
+    }
+
+    public void reloadConfig() throws IOException, LoginException, InterruptedException {
+        settings.reloadConfig();
+        startup();
     }
 
     public JDA getJda() {

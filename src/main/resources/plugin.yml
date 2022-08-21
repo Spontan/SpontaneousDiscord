@@ -9,3 +9,7 @@ libraries:
   - net.dv8tion:JDA:5.0.0-alpha.10
   - club.minnced:discord-webhooks:0.8.0
   - com.google.guava:guava:31.1-jre
+commands:
+  spontaneousbot:
+    description: Send command to the bot
+    usage: /<command> [enable|disable|reload]
