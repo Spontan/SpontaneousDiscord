@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
-public class SpontaneousSettings { //TODO: Make config file
+public class SpontaneousSettings {
     private final static Logger logger = Logger.getLogger("SpontaneousDiscord");
 
     private final List<Pattern> discordFilters = new ArrayList<>();
@@ -84,7 +84,7 @@ public class SpontaneousSettings { //TODO: Make config file
         }
         if(!configFile.isFile()){
             try {
-                Files.copy(new FileInputStream(getConfigTemplate()), Path.of(configFile.toURI())); //TODO: add template config functionality
+                Files.copy(new FileInputStream(getConfigTemplate()), Path.of(configFile.toURI()));
             } catch (Exception e) {
                 throw new IOException("Could not create default config file", e);
             }
