@@ -5,7 +5,6 @@ import club.minnced.discord.webhook.WebhookClientBuilder;
 import club.minnced.discord.webhook.send.AllowedMentions;
 import club.minnced.discord.webhook.send.WebhookMessage;
 import club.minnced.discord.webhook.send.WebhookMessageBuilder;
-import com.google.common.collect.ImmutableList;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
@@ -17,12 +16,16 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import okhttp3.OkHttpClient;
 import org.jetbrains.annotations.NotNull;
+import spontanicus.discord.interactions.commands.SendNotificationCommand;
+import spontanicus.discord.interactions.commands.SetMessageCommand;
+import spontanicus.discord.interactions.commands.SetModeCommand;
+import spontanicus.discord.interactions.CommandController;
+import spontanicus.users.UserCache;
 
 import javax.security.auth.login.LoginException;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
 import java.util.logging.Level;
@@ -40,26 +43,24 @@ public class SpontaneousBotService{
     private WebhookClient consoleWebhook;
     private String lastConsoleId;
     private final Map<String, WebhookClient> channelIdToWebhook = new HashMap<>();
+    private CommandController commandController;
     private boolean invalidStartup = false;
     private boolean running = false;
 
     private final Map<String, SpontaneousEventType> registeredTypes = new HashMap<>();
     private final Map<SpontaneousEventType, String> typeToChannelId = new HashMap<>();
 
-    private final List<Message.MentionType> NO_GROUP_MENTIONS;
     private final CopyOnWriteArrayList<String> ACTIVE_WEBHOOKS = new CopyOnWriteArrayList<>();
 
     public final static AllowedMentions ALL_MENTIONS_WEBHOOK = AllowedMentions.all();
     public final static AllowedMentions NO_GROUP_MENTIONS_WEBHOOK = new AllowedMentions().withParseEveryone(false).withParseRoles(false).withParseUsers(true);
     private SpontaneousSettings settings;
+    private File dataFolder;
 
-    public SpontaneousBotService(File configFile) throws IOException {
+    public SpontaneousBotService(File dataFolder) throws IOException {
+        this.dataFolder = dataFolder;
+        File configFile = new File(dataFolder, "config.yml");
         settings = new SpontaneousSettings(configFile);
-        final ImmutableList.Builder<Message.MentionType> types = new ImmutableList.Builder<>();
-        types.add(Message.MentionType.USER);
-        types.add(Message.MentionType.CHANNEL);
-        types.add(Message.MentionType.EMOTE);
-        NO_GROUP_MENTIONS = types.build();
     }
 
     public BaseGuildMessageChannel getChannel(String key, boolean primaryFallback) {
@@ -126,7 +127,7 @@ public class SpontaneousBotService{
             return;
         }
         channel.sendMessage(message)
-                .allowedMentions(groupMentions ? null : NO_GROUP_MENTIONS)
+                .allowedMentions(groupMentions ? null : DiscordUtil.NO_GROUP_MENTIONS)
                 .queue();
     }
 
@@ -152,14 +153,26 @@ public class SpontaneousBotService{
 
         if (jda.getGuilds().isEmpty()) {
             invalidStartup = true;
+            logger.severe("Guild data could not be retrieved from discord");
             throw new IllegalArgumentException("discordErrorNoGuildSize");
         }
 
         guild = jda.getGuildById(settings.getGuildId());
         if (guild == null) {
             invalidStartup = true;
+            logger.severe("Provided guild could not be found");
             throw new IllegalArgumentException("discordErrorNoGuild");
         }
+
+        UserCache.switchDb(dataFolder.getPath() + "/notification.db");
+
+        commandController = new CommandController(settings, jda, guild);
+
+        commandController.registerCommand(new SetModeCommand(settings));
+        commandController.registerCommand(new SetMessageCommand(settings));
+        commandController.registerCommand(new SendNotificationCommand(this));
+
+        commandController.processBatchRegistration();
 
         // Load emotes into cache, JDA will handle updates from here on out.
         guild.retrieveEmotes().queue();
@@ -293,6 +306,10 @@ public class SpontaneousBotService{
     }
 
     public void shutdown() {
+        if (commandController != null) {
+            commandController.shutdown();
+        }
+
         if (jda == null)
             return;
 

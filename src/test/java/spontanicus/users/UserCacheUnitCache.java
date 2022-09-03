@@ -80,8 +80,8 @@ public class UserCacheUnitCache {
 
         User user = users.getUser(userId);
         assertThat(user.getId()).isEqualTo(userId);
-        assertThat(user.getNotificationMessage()).isEqualTo("{name} hat einen Stream gestartet <3");
-        assertThat(user.isNotifyAutomatically()).isEqualTo(false);
+        assertThat(user.getNotificationMessage()).isEqualTo("{user.name} hat einen Stream gestartet <3");
+        assertThat(user.isNotifyAutomatically()).isEqualTo(true);
 
         checkUserInDb(user);
     }
@@ -94,14 +94,36 @@ public class UserCacheUnitCache {
 
         User user = users.getUser(userId);
         assertThat(user.getId()).isEqualTo(userId);
-        assertThat(user.getNotificationMessage()).isEqualTo("{name} hat einen Stream gestartet <3");
-        assertThat(user.isNotifyAutomatically()).isEqualTo(false);
+        assertThat(user.getNotificationMessage()).isEqualTo("{user.name} hat einen Stream gestartet <3");
+        assertThat(user.isNotifyAutomatically()).isEqualTo(true);
 
         checkUserInDb(user);
 
         user.setNotificationMessage("test");
-        user.setNotifyAutomatically(true);
+        user.setNotifyAutomatically(false);
         users.updateUser(user);
+
+        checkUserInDb(user);
+    }
+
+    @Test
+    public void checkSqlInjection() throws SQLException {
+        long userId = 98765432210L;
+        UserCache.switchDb(dbPath);
+        UserCache users = UserCache.getInstance();
+
+        User user = users.getUser(userId);
+
+        assertThat(user.getId()).isEqualTo(userId);
+        assertThat(user.getNotificationMessage()).isEqualTo("{user.name} hat einen Stream gestartet <3");
+        assertThat(user.isNotifyAutomatically()).isEqualTo(true);
+
+        user.setNotificationMessage("lol' WHERE '1'='1 --");
+        users.updateUser(user);
+
+        assertThat(user.getId()).isEqualTo(userId);
+        assertThat(user.getNotificationMessage()).isEqualTo("lol\" WHERE \"1\"=\"1 --");
+        assertThat(user.isNotifyAutomatically()).isEqualTo(true);
 
         checkUserInDb(user);
     }

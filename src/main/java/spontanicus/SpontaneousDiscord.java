@@ -30,6 +30,7 @@ public class SpontaneousDiscord extends JavaPlugin{
     @Override
     public void onDisable() {
         Bukkit.getLogger().info(ChatColor.RED + "Disabled " + this.getName());
+        discordBot.shutdown();
     }
 
     @Override
@@ -134,7 +135,7 @@ public class SpontaneousDiscord extends JavaPlugin{
         try {
             discordBot.startup();
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "discordErrorLogin" + new Object[]{e.getMessage()});
+            logger.log(Level.SEVERE, "discordErrorLogin" + e.getMessage());
             e.printStackTrace();
 
             discordBot.shutdown();
@@ -145,7 +146,7 @@ public class SpontaneousDiscord extends JavaPlugin{
         this.saveDefaultConfig();
 
         if (discordBot == null) {
-            discordBot = new SpontaneousBotService(new File(getDataFolder(), "config.yml"));
+            discordBot = new SpontaneousBotService(getDataFolder());
         }
     }
 }

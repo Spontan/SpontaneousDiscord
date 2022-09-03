@@ -1,7 +1,7 @@
 guildId:
 channelId:
 botToken:
-liveMessage: {user} hat einen Stream gestartet! <3
+liveMessage: {user.name} hat einen Stream gestartet! <3
 onlineStatus: ONLINE
 activityType: watching
 activity: all your streams!
