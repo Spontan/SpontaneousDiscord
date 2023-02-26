@@ -6,8 +6,10 @@ import spontanicus.util.ConfigParser;
 import spontanicus.util.ParameterMap;
 
 import java.io.*;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -58,6 +60,10 @@ public class SpontaneousSettings {
         return parameterValues.get(ParameterMap.BOT_TOKEN);
     }
 
+    public String getUserSettings() {
+        return parameterValues.get(ParameterMap.USER_SETTINGS);
+    }
+
     public boolean isShowBotMessages(){
         return true;
     }
@@ -84,9 +90,9 @@ public class SpontaneousSettings {
         }
         if(!configFile.isFile()){
             try {
-                Files.copy(new FileInputStream(getConfigTemplate()), Path.of(configFile.toURI()));
+                Files.copy(getConfigTemplate(), Path.of(configFile.toURI()));
             } catch (Exception e) {
-                throw new IOException("Could not create default config file", e);
+                throw new IOException("Could not create default config file at: " + Path.of(configFile.toURI()), e);
             }
         }
 
@@ -111,7 +117,7 @@ public class SpontaneousSettings {
         return ActivityType.PLAYING;
     }
 
-    private File getConfigTemplate(){
-        return null;
+    private Path getConfigTemplate() throws URISyntaxException {
+        return Paths.get(getClass().getClassLoader().getResource("config.yml").toURI());
     }
 }

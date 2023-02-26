@@ -40,7 +40,7 @@ public class UserCache {
 
     public static UserCache getInstance(){
         if(instance == null){
-            instance = new UserCache(dbPrefix + dbPath);
+            instance = new UserCache(dbPath);
         }
         return instance;
     }

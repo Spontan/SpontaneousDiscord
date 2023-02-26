@@ -164,7 +164,7 @@ public class SpontaneousBotService{
             throw new IllegalArgumentException("discordErrorNoGuild");
         }
 
-        UserCache.switchDb(dataFolder.getPath() + "/notification.db");
+        UserCache.switchDb(dataFolder.getPath() + "/" + settings.getUserSettings());
 
         commandController = new CommandController(settings, jda, guild);
 

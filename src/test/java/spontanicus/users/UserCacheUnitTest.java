@@ -6,12 +6,11 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.LinkedList;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class UserCacheUnitCache {
+public class UserCacheUnitTest {
     private static final String testFolder = "testDb/";
     private static final String dbPath =  testFolder + "users.db";
     private static final String dbUrl = "jdbc:sqlite:" + dbPath;
@@ -80,7 +79,7 @@ public class UserCacheUnitCache {
 
         User user = users.getUser(userId);
         assertThat(user.getId()).isEqualTo(userId);
-        assertThat(user.getNotificationMessage()).isEqualTo("{user.name} hat einen Stream gestartet <3");
+        assertThat(user.getNotificationMessage()).isEqualTo("");
         assertThat(user.isNotifyAutomatically()).isEqualTo(true);
 
         checkUserInDb(user);
@@ -94,7 +93,7 @@ public class UserCacheUnitCache {
 
         User user = users.getUser(userId);
         assertThat(user.getId()).isEqualTo(userId);
-        assertThat(user.getNotificationMessage()).isEqualTo("{user.name} hat einen Stream gestartet <3");
+        assertThat(user.getNotificationMessage()).isEqualTo("");
         assertThat(user.isNotifyAutomatically()).isEqualTo(true);
 
         checkUserInDb(user);
@@ -115,7 +114,7 @@ public class UserCacheUnitCache {
         User user = users.getUser(userId);
 
         assertThat(user.getId()).isEqualTo(userId);
-        assertThat(user.getNotificationMessage()).isEqualTo("{user.name} hat einen Stream gestartet <3");
+        assertThat(user.getNotificationMessage()).isEqualTo("");
         assertThat(user.isNotifyAutomatically()).isEqualTo(true);
 
         user.setNotificationMessage("lol' WHERE '1'='1 --");

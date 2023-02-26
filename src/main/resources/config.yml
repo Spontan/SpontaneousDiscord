@@ -1,7 +1,8 @@
-guildId:
-channelId:
-botToken:
+guildId: INSERT-DISCORD-SERVER-ID-HERE
+channelId: INSERT-NOTIFICATION-CHANNEL-ID-HERE
+botToken: INSERT-TOKEN-HERE
 liveMessage: {user.name} hat einen Stream gestartet! <3
 onlineStatus: ONLINE
 activityType: watching
 activity: all your streams!
+userSettings: notification.db

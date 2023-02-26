@@ -10,7 +10,6 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.requests.ErrorResponse;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
-import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 import spontanicus.discord.SpontaneousSettings;
 
@@ -61,7 +60,7 @@ public class CommandController extends ListenerAdapter {
                     internalCommand.setId(command.getId());
                     commandMap.put(command.getName(), internalCommand);
                     batchRegistrationQueue.remove(command.getName());
-                    Bukkit.getLogger().info("Registered guild command " + command.getName() + " with id " + command.getId());
+                    logger.info("Registered guild command " + command.getName() + " with id " + command.getId());
                 }
 
                 if (!batchRegistrationQueue.isEmpty()) {

@@ -11,6 +11,7 @@ public class ParameterMap {
     public static String ACTIVITY_TYPE = "activityType";
     public static String ACTIVITY = "activity";
     public static String CHANNEL_ID = "channelId";
+    public static String USER_SETTINGS = "userSettings";
 
     private Map<String, String> parameterValues = new HashMap<>();
 
@@ -19,6 +20,7 @@ public class ParameterMap {
         parameterValues.put(ONLINE_STATUS, "ONLINE");
         parameterValues.put(ACTIVITY_TYPE, "watching");
         parameterValues.put(ACTIVITY, "all your streams!");
+        parameterValues.put(USER_SETTINGS, "notification.db");
     }
 
     public ParameterMap(){
