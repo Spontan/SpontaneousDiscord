@@ -4,12 +4,11 @@ public class User {
     private final long id;
     private String notificationMessage;
     private boolean notifyAutomatically;
-    private final static String DEFAULT_NOTIFICATION_MESSAGE = "{user.name} hat einen Stream gestartet <3";
 
 
     public User(long id){
         this.id = id;
-        notificationMessage = DEFAULT_NOTIFICATION_MESSAGE;
+        notificationMessage = "";
         notifyAutomatically = true;
     }
 
