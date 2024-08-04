@@ -7,6 +7,7 @@ import spontanicus.users.User;
 import spontanicus.users.UserCache;
 
 import java.text.MessageFormat;
+import java.util.Map;
 import java.util.logging.Logger;
 
 public class SpontaneousListener extends ListenerAdapter {
@@ -34,15 +35,23 @@ public class SpontaneousListener extends ListenerAdapter {
     @Override
     public void onGuildVoiceStream(GuildVoiceStreamEvent event){
         if(event.isStream()){
-            logger.info(event.getMember().getEffectiveName() + " has started a stream");
-            User userData = UserCache.getInstance().getUser(Long.parseLong(event.getMember().getId()));
+            logger.info(DiscordUtil.getCurrentDateTimeForLogging() + " | " + event.getMember().getEffectiveName() + " has started a stream");
+            UserCache users = UserCache.getInstance();
+            User userData = users.getUser(event.getMember().getIdLong());
+            String message = DiscordUtil.formatMessage(userData.getNotificationMessage(), event.getMember());
+
             if(userData.isNotifyAutomatically()) {
-                String message = userData.getNotificationMessage();
-                controller.sendMessage(DiscordUtil.formatMessage(message, event.getMember()), true);
+                controller.sendMessage(message, true);
+            }
+
+            for(Map.Entry<Long, User> userEntry: users.getUserData().entrySet()){
+                User user = userEntry.getValue();
+                if(user.isWhisperModeEnabled() && event.getMember().getIdLong() != user.getId())
+                    controller.sendPrivateMessage(user.getId(), message);
             }
         }
         else{
-            logger.info(event.getMember().getEffectiveName() + " has ended a stream");
+            logger.info(DiscordUtil.getCurrentDateTimeForLogging() + " | " + event.getMember().getEffectiveName() + " has ended a stream");
         }
     }
 

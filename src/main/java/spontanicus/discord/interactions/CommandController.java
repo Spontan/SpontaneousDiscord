@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.requests.ErrorResponse;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
+import spontanicus.discord.DiscordUtil;
 import spontanicus.discord.SpontaneousSettings;
 
 import java.util.ArrayList;
@@ -60,20 +61,20 @@ public class CommandController extends ListenerAdapter {
                     internalCommand.setId(command.getId());
                     commandMap.put(command.getName(), internalCommand);
                     batchRegistrationQueue.remove(command.getName());
-                    logger.info("Registered guild command " + command.getName() + " with id " + command.getId());
+                    logger.info(DiscordUtil.getCurrentDateTimeForLogging() + " | Registered guild command " + command.getName() + " with id " + command.getId());
                 }
 
                 if (!batchRegistrationQueue.isEmpty()) {
-                    logger.warning(batchRegistrationQueue.size() + " Discord commands were lost during command registration!");
-                    logger.warning("Lost commands: " + batchRegistrationQueue.keySet());
+                    logger.warning(DiscordUtil.getCurrentDateTimeForLogging() + " | " + batchRegistrationQueue.size() + " Discord commands were lost during command registration!");
+                    logger.warning(DiscordUtil.getCurrentDateTimeForLogging() + " | Lost commands: " + batchRegistrationQueue.keySet());
                     batchRegistrationQueue.clear();
                 }
             }, failure -> {
                 if (failure instanceof ErrorResponseException && ((ErrorResponseException) failure).getErrorResponse() == ErrorResponse.MISSING_ACCESS) {
-                    logger.severe("Missing Access");
+                    logger.severe(DiscordUtil.getCurrentDateTimeForLogging() + " | Missing Access");
                     return;
                 }
-                logger.log(Level.SEVERE, "Error while registering command", failure);
+                logger.log(Level.SEVERE, DiscordUtil.getCurrentDateTimeForLogging() + " | Error while registering command", failure);
             });
         }
     }

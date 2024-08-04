@@ -20,6 +20,7 @@ import spontanicus.discord.interactions.commands.SendNotificationCommand;
 import spontanicus.discord.interactions.commands.SetMessageCommand;
 import spontanicus.discord.interactions.commands.SetModeCommand;
 import spontanicus.discord.interactions.CommandController;
+import spontanicus.discord.interactions.commands.ToggleWhisperModeCommand;
 import spontanicus.users.UserCache;
 
 import javax.security.auth.login.LoginException;
@@ -28,7 +29,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.*;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
@@ -74,12 +74,12 @@ public class SpontaneousBotService{
         final long resolvedId = settings.getChannelId(key);
 
         if (isDebug()) {
-            logger.log(Level.INFO, "Channel definition " + key + " resolved as " + resolvedId);
+            logger.info(DiscordUtil.getCurrentDateTimeForLogging() + " | Channel definition " + key + " resolved as " + resolvedId);
         }
         BaseGuildMessageChannel channel = guild.getTextChannelById(resolvedId);
         if (channel == null && primaryFallback) {
             if (isDebug()) {
-                logger.log(Level.WARNING, "Resolved channel id " + resolvedId + " was not found! Falling back to primary channel.");
+                logger.warning(DiscordUtil.getCurrentDateTimeForLogging() + " | Resolved channel id " + resolvedId + " was not found! Falling back to primary channel.");
             }
             channel = primaryChannel;
         }
@@ -123,7 +123,7 @@ public class SpontaneousBotService{
         }
 
         if (!channel.canTalk()) {
-            logger.warning("discordNoSendPermission: " + channel.getName());
+            logger.warning(DiscordUtil.getCurrentDateTimeForLogging() + " | discordNoSendPermission: " + channel.getName());
             return;
         }
         channel.sendMessage(message)
@@ -131,11 +131,15 @@ public class SpontaneousBotService{
                 .queue();
     }
 
+    public void sendPrivateMessage(Long userId, String message){
+        jda.getUserById(userId).openPrivateChannel().queue(channel -> channel.sendMessage(message).queue());
+    }
+
     public void startup() throws LoginException, InterruptedException {
         shutdown();
 
         invalidStartup = true;
-        logger.info("discordLoggingIn");
+        logger.info(DiscordUtil.getCurrentDateTimeForLogging() + " | discordLoggingIn");
         if (settings.getBotToken().replace("INSERT-TOKEN-HERE", "").trim().isEmpty()) {
             throw new IllegalArgumentException("discordErrorNoToken");
         }
@@ -149,18 +153,18 @@ public class SpontaneousBotService{
                 .awaitReady();
         invalidStartup = false;
         updatePresence();
-        logger.info("discordLoggingInDone: " + jda.getSelfUser().getAsTag());
+        logger.info(DiscordUtil.getCurrentDateTimeForLogging() + " | discordLoggingInDone: " + jda.getSelfUser().getAsTag());
 
         if (jda.getGuilds().isEmpty()) {
             invalidStartup = true;
-            logger.severe("Guild data could not be retrieved from discord");
+            logger.severe(DiscordUtil.getCurrentDateTimeForLogging() + " | Guild data could not be retrieved from discord");
             throw new IllegalArgumentException("discordErrorNoGuildSize");
         }
 
         guild = jda.getGuildById(settings.getGuildId());
         if (guild == null) {
             invalidStartup = true;
-            logger.severe("Provided guild could not be found");
+            logger.severe(DiscordUtil.getCurrentDateTimeForLogging() + " | Provided guild could not be found");
             throw new IllegalArgumentException("discordErrorNoGuild");
         }
 
@@ -170,6 +174,7 @@ public class SpontaneousBotService{
 
         commandController.registerCommand(new SetModeCommand(settings));
         commandController.registerCommand(new SetMessageCommand(settings));
+        commandController.registerCommand(new ToggleWhisperModeCommand(settings));
         commandController.registerCommand(new SendNotificationCommand(this));
 
         commandController.processBatchRegistration();
@@ -186,7 +191,7 @@ public class SpontaneousBotService{
         // DiscordUtil.cleanWebhooks(guild, DiscordUtil.ADVANCED_RELAY_NAME);
 
         if(!invalidStartup) {
-            logger.info("Bot started!");
+            logger.info(DiscordUtil.getCurrentDateTimeForLogging() + " | Bot started!");
             running = true;
         }
     }
@@ -202,7 +207,7 @@ public class SpontaneousBotService{
             if (channel == null) {
                 throw new RuntimeException("discordErrorNoPerms");
             }
-            logger.warning("discordErrorNoPrimary: " + channel.getName());
+            logger.warning(DiscordUtil.getCurrentDateTimeForLogging() + " | discordErrorNoPrimary: " + channel.getName());
         }
 
         if (!channel.canTalk()) {
@@ -337,7 +342,7 @@ public class SpontaneousBotService{
             // Wait for JDA to wrap it up
             future.get(5, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            logger.warning("JDA took longer than expected to shutdown, this may have caused some problems.");
+            logger.warning(DiscordUtil.getCurrentDateTimeForLogging() + " | JDA took longer than expected to shutdown, this may have caused some problems.");
         } finally {
             jda = null;
             running = false;

@@ -1,8 +1,11 @@
 package spontanicus.users;
 
+import spontanicus.discord.DiscordUtil;
+
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class UserCache {
@@ -11,10 +14,12 @@ public class UserCache {
     private static final String ID = "ID";
     private static final String NOTIFICATION_MESSAGE = "NOTIFICATION_MESSAGE";
     private static final String NOTIFY_AUTOMATICALLY = "NOTIFY_AUTOMATICALLY";
+    private static final String WHISPER_MODE = "WHISPER_MODE";
     private static final String INIT_USER_TABLE = "CREATE TABLE IF NOT EXISTS USER (" +
             ID + " LONG PRIMARY KEY," +
             NOTIFICATION_MESSAGE + " TEXT NOT NULL," +
-            NOTIFY_AUTOMATICALLY + " BOOLEAN NOT NULL" +
+            NOTIFY_AUTOMATICALLY + " BOOLEAN NOT NULL," +
+            WHISPER_MODE + " BOOLEAN NOT NULL" +
             ")";
     private static final String SELECT_ALL_USERS = "SELECT * FROM USER";
 
@@ -30,12 +35,8 @@ public class UserCache {
 
     protected UserCache(String dbPath){
         dbUrl = dbPrefix + dbPath;
-        try (Connection dbConnection = DriverManager.getConnection(dbUrl);
-            Statement stmt = dbConnection.createStatement()){
-            stmt.execute(INIT_USER_TABLE);
-        } catch (SQLException e) {
-            logger.severe("Error while creating user table");
-        }
+        if(executeSqlStatement(INIT_USER_TABLE))
+            logger.severe(DiscordUtil.getCurrentDateTimeForLogging() + " | Error while creating user table");
     }
 
     public static UserCache getInstance(){
@@ -78,15 +79,17 @@ public class UserCache {
                 long userId = userResult.getLong(ID);
                 String notificationMessage = userResult.getString(NOTIFICATION_MESSAGE);
                 boolean notifyAutomatically = userResult.getBoolean(NOTIFY_AUTOMATICALLY);
+                boolean whisperModeEnabled = userResult.getBoolean(WHISPER_MODE);
 
                 User newUser = new User(userId);
                 newUser.setNotificationMessage(notificationMessage);
                 newUser.setNotifyAutomatically(notifyAutomatically);
+                newUser.setWhisperModeEnabled(whisperModeEnabled);
 
                 userData.put(userId, newUser);
             }
         } catch (SQLException e) {
-            logger.severe("Couldn't connect to user DB, only default settings will be available");
+            logger.log(Level.SEVERE, DiscordUtil.getCurrentDateTimeForLogging() + " | Couldn't connect to user DB, only default settings will be available", e);
             userData = new HashMap<>();
         }
     }
@@ -111,14 +114,14 @@ public class UserCache {
         }
 
         user.setNotificationMessage(removeQuotes(user.getNotificationMessage()));
-        try (Connection dbConnection = DriverManager.getConnection(dbUrl);
-            Statement sqlStatement = dbConnection.createStatement()){
-            sqlStatement.execute("INSERT INTO USER (" + ID + "," + NOTIFICATION_MESSAGE + "," + NOTIFY_AUTOMATICALLY + ") " +
-                    "VALUES (" + id + ",'" + user.getNotificationMessage() + "'," + user.isNotifyAutomatically() + ")");
+        String statement = "INSERT INTO USER (" + ID + "," + NOTIFICATION_MESSAGE + "," + NOTIFY_AUTOMATICALLY + ") " +
+                "VALUES (" + id + ",'" + user.getNotificationMessage() + "'," + user.isNotifyAutomatically() + ")";
+
+        if(executeSqlStatement(statement))
             userData.put(id, user);
-        } catch (SQLException e) {
-            logger.severe("Error while persisting user " + id);
-        }
+        else
+            logger.severe(DiscordUtil.getCurrentDateTimeForLogging() + " | Error while persisting user " + id);
+
         return user;
     }
 
@@ -135,13 +138,22 @@ public class UserCache {
             insertUser(user);
         }else{
             user.setNotificationMessage(removeQuotes(user.getNotificationMessage()));
-            try (Connection dbConnection = DriverManager.getConnection(dbUrl)){
-                Statement sqlStatement = dbConnection.createStatement();
-                sqlStatement.execute("UPDATE USER SET " + NOTIFICATION_MESSAGE + "='" + user.getNotificationMessage() + "'," +
-                        NOTIFY_AUTOMATICALLY + "=" + user.isNotifyAutomatically() + " WHERE " + ID + "=" + user.getId());
-            } catch (SQLException e) {
-                logger.severe("Error while persisting user " + user.getId());
-            }
+            String statement = "UPDATE USER SET " + NOTIFICATION_MESSAGE + "='" + user.getNotificationMessage() + "'," +
+                    NOTIFY_AUTOMATICALLY + "=" + user.isNotifyAutomatically() + "," +
+                    WHISPER_MODE + "=" + user.isWhisperModeEnabled() + " WHERE " + ID + "=" + user.getId();
+            if(!executeSqlStatement(statement))
+                logger.severe(DiscordUtil.getCurrentDateTimeForLogging() + " | Error while persisting user " + user.getId());
         }
+    }
+
+    private boolean executeSqlStatement(String statement){
+        try (Connection dbConnection = DriverManager.getConnection(dbUrl)){
+            Statement sqlStatement = dbConnection.createStatement();
+            sqlStatement.execute(statement);
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, DiscordUtil.getCurrentDateTimeForLogging() + " | Error while executing SQL statement: " + statement, e);
+            return false;
+        }
+        return true;
     }
 }

@@ -4,6 +4,7 @@ public class User {
     private final long id;
     private String notificationMessage;
     private boolean notifyAutomatically;
+    private boolean whisperModeEnabled;
 
 
     public User(long id){
@@ -32,6 +33,10 @@ public class User {
         this.notifyAutomatically = notifyAutomatically;
     }
 
+    public void setWhisperModeEnabled(boolean whisperModeEnabled) { this.whisperModeEnabled = whisperModeEnabled; }
+
+    public boolean isWhisperModeEnabled() { return whisperModeEnabled; }
+
     @Override
     public boolean equals(Object other){
         if(other == null)
@@ -47,4 +52,6 @@ public class User {
     public String toString(){
         return "[UserId: " + id + "]";
     }
+
+
 }

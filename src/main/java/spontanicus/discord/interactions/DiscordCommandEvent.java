@@ -34,7 +34,7 @@ public class DiscordCommandEvent {
                 new MessageBuilder()
                         .setContent(reply)
                         .setAllowedMentions(DiscordUtil.NO_GROUP_MENTIONS).build())
-                .queue(null, error -> logger.log(Level.SEVERE, "Error while editing command interaction response", error));
+                .queue(null, error -> logger.log(Level.SEVERE, DiscordUtil.getCurrentDateTimeForLogging() + " | Error while editing command interaction response", error));
     }
 
     public InteractionMember getMember() {

@@ -5,9 +5,11 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 
 import java.util.List;
+import java.util.Calendar;
+import java.text.SimpleDateFormat;
 
 public class DiscordUtil {
-
+    public static final String DATE_FORMAT_NOW = "yyyy-MM-dd HH:mm:ss";
     public static final List<Message.MentionType> NO_GROUP_MENTIONS;
     private static final String NOTIFICATION_PREFIX = "{user.name} hat einen Stream gestartet <3";
 
@@ -27,5 +29,11 @@ public class DiscordUtil {
         }
 
         return message.replace("{user.name}", member.getEffectiveName());
+    }
+
+    public static String getCurrentDateTimeForLogging(){
+        Calendar cal = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_NOW);
+        return sdf.format(cal.getTime());
     }
 }

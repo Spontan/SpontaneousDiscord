@@ -16,8 +16,6 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 public class SpontaneousSettings {
-    private final static Logger logger = Logger.getLogger("SpontaneousDiscord");
-
     private final List<Pattern> discordFilters = new ArrayList<>();
     private final File configFile;
 
