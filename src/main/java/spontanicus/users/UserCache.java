@@ -114,8 +114,8 @@ public class UserCache {
         }
 
         user.setNotificationMessage(removeQuotes(user.getNotificationMessage()));
-        String statement = "INSERT INTO USER (" + ID + "," + NOTIFICATION_MESSAGE + "," + NOTIFY_AUTOMATICALLY + ") " +
-                "VALUES (" + id + ",'" + user.getNotificationMessage() + "'," + user.isNotifyAutomatically() + ")";
+        String statement = "INSERT INTO USER (" + ID + "," + NOTIFICATION_MESSAGE + "," + NOTIFY_AUTOMATICALLY + "," + WHISPER_MODE + ") " +
+                "VALUES (" + id + ",'" + user.getNotificationMessage() + "'," + user.isNotifyAutomatically() + "," + user.isWhisperModeEnabled() + ")";
 
         if(executeSqlStatement(statement))
             userData.put(id, user);
