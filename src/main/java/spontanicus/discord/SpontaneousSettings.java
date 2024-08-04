@@ -64,6 +64,14 @@ public class SpontaneousSettings {
         return parameterValues.get(ParameterMap.USER_SETTINGS);
     }
 
+    public String get7DaysServerAddress(){
+        return parameterValues.get(ParameterMap.SEVEN_DAYS_SERVER_ADDRESS);
+    }
+
+    public String getPrivateKeyFile(){
+        return parameterValues.get(ParameterMap.PRIVATE_KEY_FILE);
+    }
+
     public boolean isShowBotMessages(){
         return true;
     }
@@ -117,7 +125,7 @@ public class SpontaneousSettings {
         return ActivityType.PLAYING;
     }
 
-    private Path getConfigTemplate() throws URISyntaxException {
-        return Paths.get(getClass().getClassLoader().getResource("config.yml").toURI());
+    private InputStream getConfigTemplate() throws URISyntaxException {
+        return getClass().getClassLoader().getResourceAsStream("config.yml");
     }
 }

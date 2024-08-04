@@ -6,3 +6,5 @@ onlineStatus: ONLINE
 activityType: watching
 activity: all your streams!
 userSettings: notification.db
+7daysServerAddress: INSERT-7DAYS-SERVER-IP-HERE
+privateKeyFile: INSERT-PATH-TO-PRIVATE-KEY-HERE

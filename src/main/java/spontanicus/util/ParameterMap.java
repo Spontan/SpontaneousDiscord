@@ -12,6 +12,8 @@ public class ParameterMap {
     public static String ACTIVITY = "activity";
     public static String CHANNEL_ID = "channelId";
     public static String USER_SETTINGS = "userSettings";
+    public static String PRIVATE_KEY_FILE = "privateKeyFile";
+    public static String SEVEN_DAYS_SERVER_ADDRESS = "7DaysServerAddress";
 
     private Map<String, String> parameterValues = new HashMap<>();
 

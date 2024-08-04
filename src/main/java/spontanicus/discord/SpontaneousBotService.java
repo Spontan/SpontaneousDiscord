@@ -16,6 +16,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import okhttp3.OkHttpClient;
 import org.jetbrains.annotations.NotNull;
+import spontanicus.discord.interactions.commands.Restart7DaysServerCommand;
 import spontanicus.discord.interactions.commands.SendNotificationCommand;
 import spontanicus.discord.interactions.commands.SetMessageCommand;
 import spontanicus.discord.interactions.commands.SetModeCommand;
@@ -171,6 +172,7 @@ public class SpontaneousBotService{
         commandController.registerCommand(new SetModeCommand(settings));
         commandController.registerCommand(new SetMessageCommand(settings));
         commandController.registerCommand(new SendNotificationCommand(this));
+        commandController.registerCommand(new Restart7DaysServerCommand(settings));
 
         commandController.processBatchRegistration();
 

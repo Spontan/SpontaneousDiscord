@@ -51,5 +51,9 @@ public abstract class DiscordCommand {
     }
 
     abstract public void onCommand(DiscordCommandEvent event);
+
+    protected SpontaneousSettings getSettings(){
+        return settings;
+    }
 }
 
